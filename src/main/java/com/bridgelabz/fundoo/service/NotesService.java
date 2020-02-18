@@ -33,7 +33,8 @@ public class NotesService {
 
 	public String deleteNote(Notes notes, String decodeToken) {
 		Optional<User> user = userRepositry.findByEmail(decodeToken);
-		Optional<Notes> note = notesRepository.findById(user.get().getUserid());
+		//Optional<Notes> note = notesRepository.findById(user.get().getUserid());
+		Optional<Notes>note=notesRepository.findByNoteId(user.get().getUserid());
 		if ((note.isEmpty()) && (user.isEmpty())) {
 			return "note not present";
 		} else {

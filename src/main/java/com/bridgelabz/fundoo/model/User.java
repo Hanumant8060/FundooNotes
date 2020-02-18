@@ -1,6 +1,5 @@
 package com.bridgelabz.fundoo.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -23,7 +22,8 @@ public class User {
 	private String password;
 	private String confirm_password;
 	@OneToMany(mappedBy = "userid")
-	private List<Notes> notes = new ArrayList<Notes>();
+	private List<Notes> notes;
+	
 
 	public int getUserid() {
 		return userid;
