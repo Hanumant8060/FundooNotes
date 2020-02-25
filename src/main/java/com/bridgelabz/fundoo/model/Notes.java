@@ -1,5 +1,6 @@
 package com.bridgelabz.fundoo.model;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 public class Notes {
@@ -19,30 +23,44 @@ public class Notes {
 	private int noteId;
 	private String note_disc;
 	private String note_title;
+	@NotNull
+	private boolean isPin;
+	@NotNull
+	private boolean isTrash;
+	@NotNull
+	private boolean isArchive;
+	private LocalDateTime atCreated;
+	private LocalDateTime atModified;
+	private boolean isReminder;
+	private LocalDateTime reminderTime;
+	
 	@ManyToOne
 	@JoinColumn(name = "userid")
 	private User userid;
 	@ManyToMany
-	@JoinTable(name = "Label_Notes_join",joinColumns = @JoinColumn(name = "noteId"), inverseJoinColumns = @JoinColumn(name = "labelId"))
-	
-	private List<Label> labelNoteslist= new ArrayList<Label>();
-
-	
+	@JoinTable(name = "Label_Notes_join", joinColumns = @JoinColumn(name = "noteId"), inverseJoinColumns = @JoinColumn(name = "labelId"))
+	@JsonIgnoreProperties(value = "noteLabelList")
+	private List<Label> labelNoteslist = new ArrayList<Label>();
+	@ManyToMany
+	@JoinTable(name = "User_Notes_join", joinColumns = @JoinColumn(name = "noteId"), inverseJoinColumns = @JoinColumn(name = "userid"))
+	@JsonIgnoreProperties(value = "noteUserList")
+	private List<User> userNoteList = new ArrayList<User>();
+	@ManyToMany
+	@JoinTable(name = "CollaBorator_Notes_join", joinColumns = @JoinColumn(name = "noteId"), inverseJoinColumns = @JoinColumn(name = "collabEmail"))
+	@JsonIgnoreProperties(value = "noteList")
+	private List<CollaBorator> collaboratorList;
 
 	public Notes() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public Notes(int noteId, String note_disc, String note_title, User userid, List<Label> labelNoteslist) {
-		super();
-		this.noteId = noteId;
-		this.note_disc = note_disc;
-		this.note_title = note_title;
-		this.userid = userid;
-		this.labelNoteslist = labelNoteslist;
-	}
-
+	/*
+	 * public Notes(int noteId, String note_disc, String note_title, User userid,
+	 * List<Label> labelNoteslist) { super(); this.noteId = noteId; this.note_disc =
+	 * note_disc; this.note_title = note_title; this.userid = userid;
+	 * this.labelNoteslist = labelNoteslist; }
+	 */
 	public List<Label> getLabelNoteslist() {
 		return labelNoteslist;
 	}
@@ -83,12 +101,84 @@ public class Notes {
 		this.userid = userid;
 	}
 
+	public boolean isPin() {
+		return isPin;
+	}
+
+	public boolean isTrash() {
+		return isTrash;
+	}
+
+	public boolean isArchive() {
+		return isArchive;
+	}
+
+	public void setPin(boolean isPin) {
+		this.isPin = isPin;
+	}
+
+	public void setTrash(boolean isTrash) {
+		this.isTrash = isTrash;
+	}
+
+	public void setArchive(boolean isArchive) {
+		this.isArchive = isArchive;
+	}
+
+	public List<User> getUserNoteList() {
+		return userNoteList;
+	}        
+
+	public void setUserNoteList(List<User> userNoteList) {
+		this.userNoteList = userNoteList;
+	}
+
+	public List<CollaBorator> getCollaboratorList() {
+		return collaboratorList;
+	}
+
+	public void setCollaboratorList(List<CollaBorator> collaboratorList) {
+		this.collaboratorList = collaboratorList;
+	} 
+	
+
+	public LocalDateTime getAtCreated() {
+		return atCreated;
+	}
+
+	public LocalDateTime getAtModified() {
+		return atModified;
+	}
+
+	public void setAtCreated() {
+		this.atCreated = LocalDateTime.now();
+	}
+
+	public void setAtModified(LocalDateTime atModified) {
+		this.atModified = atModified;
+	}
+	
+
+	public boolean isReminder() {
+		return isReminder;
+	}
+
+	public void setReminder(boolean isReminder) {
+		this.isReminder = isReminder;
+	}
+	
+	public LocalDateTime getReminderTime() {
+		return reminderTime;
+	}
+
+	public void setReminderTime(LocalDateTime reminderTime) {
+		this.reminderTime = reminderTime;
+	}
+
 	@Override
 	public String toString() {
 		return "Notes [noteId=" + noteId + ", note_disc=" + note_disc + ", note_title=" + note_title + ", userid="
 				+ userid + ", labelNoteslist=" + labelNoteslist + "]";
 	}
-	
-	
 
 }

@@ -1,17 +1,23 @@
 package com.bridgelabz.fundoo.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "USER")
-public class User {
+public class User  {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int userid;
@@ -23,7 +29,10 @@ public class User {
 	private String confirm_password;
 	@OneToMany(mappedBy = "userid")
 	private List<Notes> notes;
-	
+	@ManyToMany
+	@JoinTable(name = "User_Notes_join", joinColumns = @JoinColumn(name = "userid"), inverseJoinColumns = @JoinColumn(name = "noteId"))
+	@JsonIgnoreProperties(value = "userNoteList")
+	private List<Notes> noteUserList = new ArrayList<Notes>();
 
 	public int getUserid() {
 		return userid;
@@ -82,11 +91,18 @@ public class User {
 		this.confirm_password = confirm_password;
 	}
 
+	public List<Notes> getNoteUserList() {
+		return noteUserList;
+	}
+
+	public void setNoteUserList(List<Notes> noteUserList) {
+		this.noteUserList = noteUserList;
+	}
+
 	@Override
 	public String toString() {
 		return "User [userid=" + userid + ", firstname=" + firstname + ", lastname=" + lastname + ", email=" + email
 				+ ", username=" + username + ", password=" + password + ", confirm_password=" + confirm_password + "]";
 	}
-	
 
 }

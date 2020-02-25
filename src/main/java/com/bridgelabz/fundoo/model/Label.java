@@ -1,5 +1,6 @@
 package com.bridgelabz.fundoo.model;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,24 +13,24 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 public class Label {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long labelId;
 	private String label_name;
+	private LocalDateTime atCreated;
+	private LocalDateTime atModified;
 	@ManyToOne
 	@JoinColumn(name = "userid")
 	private User userid;
 	@ManyToMany
-	@JoinTable(name = "Label_Notes_join",joinColumns = @JoinColumn(name = "labelId"), inverseJoinColumns = @JoinColumn(name = "noteId"))
+	@JoinTable(name = "Label_Notes_join", joinColumns = @JoinColumn(name = "labelId"), inverseJoinColumns = @JoinColumn(name = "noteId"))
+	@JsonIgnoreProperties(value = "labelNotesList")
 	private List<Notes> noteLabelList = new ArrayList<Notes>();
-	
 
-	
-	
-	
-	
 	public Label() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -73,6 +74,22 @@ public class Label {
 
 	public void setUserid(User userid) {
 		this.userid = userid;
+	}
+
+	public LocalDateTime getAtCreated() {
+		return atCreated;
+	}
+
+	public LocalDateTime getAtModified() {
+		return atModified;
+	}
+
+	public void setAtCreated() {
+		this.atCreated = LocalDateTime.now();
+	}
+
+	public void setAtModified(LocalDateTime atModified) {
+		this.atModified = atModified;
 	}
 
 	@Override

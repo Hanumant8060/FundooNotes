@@ -18,10 +18,10 @@ public class UserService {
 
 	@Autowired
 	private UserRepository repository;
-	
+
 	@Autowired
 	private TokenService tokenservice;
-	
+
 	@Autowired
 	private JMS mailsender;
 
@@ -45,51 +45,50 @@ public class UserService {
 		return "add user";
 
 	}
+
 	public String newLogin(LoginDto loginDto) {
 		Optional<User> user = repository.findByEmail(loginDto.getEmail());
 		if (user.isEmpty()) {
 			System.out.println("username not valid ");
 			throw new RuntimeException("user does not exist");
-			
+
 		}
 		if (!user.get().getPassword().equals(loginDto.getPassword())) {
 			System.out.println("password not match");
 			throw new RuntimeException("password mismatch");
 		}
-		
+
 		String userToken = tokenservice.createToken(user.get().getEmail());
-		System.out.println("Token " +userToken);
-		mailsender.sendEmail(loginDto.getEmail(), userToken);
-		return "login succesfully "+userToken;
+		System.out.println("Token " + userToken);
+		//mailsender.sendEmail(loginDto.getEmail(), userToken);
+		return "login succesfully " + userToken;
 
 	}
-	
+
 	public String forgotPass(ForgotPasswordDto forgotPassWord) {
-		Optional< User> user = repository.findByEmail(forgotPassWord.getEmail());
-		if(user.isEmpty()) {
+		Optional<User> user = repository.findByEmail(forgotPassWord.getEmail());
+		if (user.isEmpty()) {
 			return "User does not exist";
-		}
-		else {
-				mailsender.sendEmail(forgotPassWord.getEmail(), "http://localhost:8080/home/forgotpassword");
+		} else {
+			mailsender.sendEmail(forgotPassWord.getEmail(), "http://localhost:8080/home/forgotpassword");
 		}
 		return "check link on your mail";
-		
+
 	}
+
 	public String resetPass(ResetPasswordDto resetPassWord) {
 		Optional<User> user = repository.findByEmail(resetPassWord.getEmail());
-		if(user.isPresent()) {
-			if(user.get().getPassword().equals(user.get().getConfirm_password())) {
+		if (user.isPresent()) {
+			if (user.get().getPassword().equals(user.get().getConfirm_password())) {
 				user.get().setPassword(resetPassWord.getPassword());
 				user.get().setConfirm_password(resetPassWord.getConfirm_password());
 				repository.save(user.get());
 				mailsender.sendEmail(resetPassWord.getEmail(), "password reset succesfully");
 			}
-		}
-		else {
+		} else {
 			return "user not exist";
 		}
 		return "password reset";
 	}
-
 
 }

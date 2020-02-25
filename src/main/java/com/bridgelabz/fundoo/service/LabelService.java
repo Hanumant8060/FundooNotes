@@ -1,5 +1,7 @@
 package com.bridgelabz.fundoo.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -7,7 +9,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.bridgelabz.fundoo.dto.LabelDto;
 import com.bridgelabz.fundoo.model.Label;
 import com.bridgelabz.fundoo.model.Notes;
 import com.bridgelabz.fundoo.model.User;
@@ -26,15 +27,13 @@ public class LabelService {
 
 	public String createLabel(Label label, String decodeToken) {
 		Optional<Label> label_id = labelRepository.findById(label.getLabelId());
-		// Optional<Label> label_id = labelRepository.findById(label.getLabel_id());
 		Optional<User> userId = userRepository.findByEmail(decodeToken);
-		// System.out.println("in createLabel userId "+userId);
 		if ((label_id.isEmpty()) && (label.getLabel_name().isEmpty())) {
 			return " false in if";
 
 		} else {
-			// label_id.get().setUserid(userId.get());
 			label.setUserid(userId.get());
+			label.setAtCreated();
 			labelRepository.save(label);
 		}
 		return "label created";
@@ -57,6 +56,7 @@ public class LabelService {
 		if (userId.isPresent()) {
 			if (label_id.isPresent()) {
 				label_id.get().setLabel_name(label.getLabel_name());
+				label_id.get().setAtModified(LocalDateTime.now());
 				labelRepository.save(label_id.get());
 			}
 		}
@@ -100,10 +100,6 @@ public class LabelService {
 				}
 			}
 		} else {
-//			note_Id.get().getLabel_id().add(label_Id.get());
-//			noteRpository.save(note_Id.get());
-
-
 			label.get().getNoteLabelList().add(note_Id.get());
 			labelRepository.save(label.get());
 		}
