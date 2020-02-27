@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -20,7 +21,8 @@ public class Label {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long labelId;
-	private String label_name;
+	@NotEmpty(message = "label name should not be empty")
+	private String labelname;
 	private LocalDateTime atCreated;
 	private LocalDateTime atModified;
 	@ManyToOne
@@ -39,17 +41,13 @@ public class Label {
 	public Label(long labelId, String label_name, List<Notes> noteLabelList, User userid) {
 		super();
 		this.labelId = labelId;
-		this.label_name = label_name;
+		this.labelname = label_name;
 		this.noteLabelList = noteLabelList;
 		this.userid = userid;
 	}
 
 	public long getLabelId() {
 		return labelId;
-	}
-
-	public String getLabel_name() {
-		return label_name;
 	}
 
 	public List<Notes> getNoteLabelList() {
@@ -64,8 +62,12 @@ public class Label {
 		this.labelId = labelId;
 	}
 
-	public void setLabel_name(String label_name) {
-		this.label_name = label_name;
+	public String getLabelname() {
+		return labelname;
+	}
+
+	public void setLabelname(String labelname) {
+		this.labelname = labelname;
 	}
 
 	public void setNoteLabelList(List<Notes> noteLabelList) {
@@ -94,7 +96,7 @@ public class Label {
 
 	@Override
 	public String toString() {
-		return "Label [labelId=" + labelId + ", label_name=" + label_name + ", noteLabelList=" + noteLabelList
+		return "Label [labelId=" + labelId + ", label_name=" + labelname + ", noteLabelList=" + noteLabelList
 				+ ", userid=" + userid + "]";
 	}
 

@@ -1,14 +1,13 @@
 package com.bridgelabz.fundoo.service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.bridgelabz.fundoo.exception.LabelException;
 import com.bridgelabz.fundoo.model.Label;
 import com.bridgelabz.fundoo.model.Notes;
 import com.bridgelabz.fundoo.model.User;
@@ -25,40 +24,42 @@ public class LabelService {
 	@Autowired
 	private NotesRepository noteRpository;
 
-	public String createLabel(Label label, String decodeToken) {
-		Optional<Label> label_id = labelRepository.findById(label.getLabelId());
+	public String createLabel(Label label, String decodeToken) throws LabelException {
+		Optional<Label> labelname = labelRepository.findByLabelname(label.getLabelname());
 		Optional<User> userId = userRepository.findByEmail(decodeToken);
-		if ((label_id.isEmpty()) && (label.getLabel_name().isEmpty())) {
-			return " false in if";
-
-		} else {
+		if (labelname.isEmpty()) {
 			label.setUserid(userId.get());
 			label.setAtCreated();
 			labelRepository.save(label);
+		} else {
+			throw new LabelException("label already present");
 		}
 		return "label created";
 	}
 
-	public String deleteLabel(Label label, String decodeToken) {
+	public String deleteLabel(Label label, String decodeToken) throws LabelException {
 		Optional<User> userId = userRepository.findByEmail(decodeToken);
-		Optional<Label> label_id = labelRepository.findById((long) userId.get().getUserid());
-		if ((label_id.isEmpty()) && (userId.isEmpty())) {
-			return "label not present";
+		Optional<Label> label_id = labelRepository.findByLabelId(label.getLabelId());
+		if (label_id.isEmpty()) {
+			throw new LabelException("Label not exist");
+		}
+		if (userId.isEmpty()) {
+			throw new LabelException("User not exist");
 		} else {
 			labelRepository.delete(label);
 		}
 		return "delete sucesfully";
 	}
 
-	public String updateLabel(Label label, String decodeToken) {
+	public String updateLabel(Label label, String decodeToken) throws LabelException {
 		Optional<User> userId = userRepository.findByEmail(decodeToken);
-		Optional<Label> label_id = labelRepository.findById(label.getLabelId());
-		if (userId.isPresent()) {
-			if (label_id.isPresent()) {
-				label_id.get().setLabel_name(label.getLabel_name());
-				label_id.get().setAtModified(LocalDateTime.now());
-				labelRepository.save(label_id.get());
-			}
+		Optional<Label> label_id = labelRepository.findByLabelId(label.getLabelId());
+		if (label_id.isPresent()) {
+			label_id.get().setLabelname(label.getLabelname());
+			label_id.get().setAtModified(LocalDateTime.now());
+			labelRepository.save(label_id.get());
+		} else {
+			throw new LabelException("label not present");
 		}
 		return "updated succesfully";
 	}
@@ -71,14 +72,14 @@ public class LabelService {
 		return allLabels;
 	}
 
-	public String addLabelToNote(String token, int noteId, int labelId) {
+	public String addLabelToNote(String token, int noteId, int labelId) throws LabelException {
 		Optional<Label> label_Id = labelRepository.findByLabelId(labelId);
 		Optional<Notes> note_Id = noteRpository.findByNoteId(noteId);
 		Optional<User> user_Id = userRepository.findByEmail(token);
 		if (label_Id.isEmpty()) {
 			if (note_Id.isEmpty()) {
 				if (user_Id.isEmpty()) {
-					return "ERROR";
+					throw new LabelException("Something went wrong");
 				}
 			}
 		} else {
@@ -89,14 +90,14 @@ public class LabelService {
 
 	}
 
-	public String addNoteToLabel(String token, int noteId, int labelId) {
+	public String addNoteToLabel(String token, int noteId, int labelId) throws LabelException {
 		Optional<Label> label = labelRepository.findByLabelId(labelId);
 		Optional<Notes> note_Id = noteRpository.findByNoteId(noteId);
 		Optional<User> user_Id = userRepository.findByEmail(token);
 		if (label.isEmpty()) {
 			if (note_Id.isEmpty()) {
 				if (user_Id.isEmpty()) {
-					return "ERROR";
+					throw new LabelException("Something went wrong");
 				}
 			}
 		} else {

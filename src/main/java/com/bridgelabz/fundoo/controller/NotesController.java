@@ -2,6 +2,8 @@ package com.bridgelabz.fundoo.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,9 +14,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.auth0.jwt.impl.PublicClaims;
+import com.bridgelabz.fundoo.exception.NotesException;
 import com.bridgelabz.fundoo.model.CollaBorator;
 import com.bridgelabz.fundoo.model.Notes;
+import com.bridgelabz.fundoo.response.Response;
 import com.bridgelabz.fundoo.service.NotesService;
 import com.bridgelabz.fundoo.utility.TokenService;
 
@@ -27,16 +30,17 @@ public class NotesController {
 	private TokenService tokenService;
 
 	@PostMapping("/create")
-	public String add(@RequestBody Notes notes, @RequestHeader String token) {
+	public Response add(@Valid @RequestBody Notes notes, @RequestHeader String token) throws NotesException {
 		String decodeToken = tokenService.getUserIdFromToken(token);
-		System.out.println("decodetoken " + decodeToken);
-		return service.createNote(notes, decodeToken);
+		service.createNote(notes, decodeToken);
+		return new Response("note Created ", "Ok", 200);
 	}
 
 	@DeleteMapping("/delete")
-	public String delete(@RequestBody Notes notes, @RequestHeader String token) {
+	public Response delete(@RequestBody Notes notes, @RequestHeader String token) throws NotesException {
 		String decodeToken = tokenService.getUserIdFromToken(token);
-		return service.deleteNote(notes, decodeToken);
+		service.deleteNote(notes, decodeToken);
+		return new Response("note deleted", "ok", 200);
 	}
 
 	@GetMapping("/findAll")
@@ -46,9 +50,10 @@ public class NotesController {
 	}
 
 	@PutMapping("/update")
-	public String update(@RequestBody Notes notes, @RequestHeader String token) {
+	public Response update(@Valid @RequestBody Notes notes, @RequestHeader String token) throws NotesException {
 		String decodeToken = tokenService.getUserIdFromToken(token);
-		return service.updateNote(notes, decodeToken);
+		service.updateNote(notes, decodeToken);
+		return new Response("note updated", "ok", 200);
 
 	}
 
@@ -59,39 +64,45 @@ public class NotesController {
 	}
 
 	@PostMapping("/trash")
-	public String trashNotes(@RequestHeader int noteId, @RequestHeader String token) {
+	public Response trashNotes(@RequestHeader int noteId, @RequestHeader String token) throws NotesException {
 		String decodeToken = tokenService.getUserIdFromToken(token);
-		return service.trashNote(noteId, decodeToken);
+		service.trashNote(noteId, decodeToken);
+		return new Response("note trashed", "OK", 200);
 	}
 
 	@DeleteMapping("/untrash")
-	public String unTrashNotes(@RequestHeader int noteId, @RequestHeader String token) {
+	public Response unTrashNotes(@RequestHeader int noteId, @RequestHeader String token) throws NotesException {
 		String decodeToken = tokenService.getUserIdFromToken(token);
-		return service.unTrashNote(noteId, decodeToken);
+		service.unTrashNote(noteId, decodeToken);
+		return new Response("note untrashed", "OK", 200);
 	}
 
 	@PostMapping("/pin")
-	public String pin(@RequestHeader int noteId, @RequestHeader String token) {
+	public Response pin(@RequestHeader int noteId, @RequestHeader String token) throws NotesException {
 		String decodeToken = tokenService.getUserIdFromToken(token);
-		return service.pinNote(noteId, decodeToken);
+		service.pinNote(noteId, decodeToken);
+		return new Response("note pinned", "Ok", 200);
 	}
 
 	@PostMapping("/archived")
-	public String archived(@RequestHeader int noteId, @RequestHeader String token) {
+	public Response archived(@RequestHeader int noteId, @RequestHeader String token) throws NotesException {
 		String decodeToken = tokenService.getUserIdFromToken(token);
-		return service.archivedNote(noteId, decodeToken);
+		service.archivedNote(noteId, decodeToken);
+		return new Response("note archived", "ok", 200);
 	}
 
 	@PostMapping("/unarchived")
-	public String unArchived(@RequestHeader int noteId, @RequestHeader String token) {
+	public Response unArchived(@RequestHeader int noteId, @RequestHeader String token) throws NotesException {
 		String decodeToken = tokenService.getUserIdFromToken(token);
-		return service.unArchivedNote(noteId, decodeToken);
+		service.unArchivedNote(noteId, decodeToken);
+		return new Response("note unarchived", "ok", 200);
 	}
 
 	@DeleteMapping("/deleteTrash")
-	public String deleteTrash(@RequestHeader String token, @RequestHeader int noteId) {
+	public Response deleteTrash(@RequestHeader String token, @RequestHeader int noteId) throws NotesException {
 		String decodeToken = tokenService.getUserIdFromToken(token);
-		return service.deleteTrashNote(noteId, decodeToken);
+		service.deleteTrashNote(noteId, decodeToken);
+		return new Response("note deleted from trash", "ok", 200);
 
 	}
 
@@ -109,12 +120,14 @@ public class NotesController {
 	}
 
 	@PostMapping("/collaborator")
-	public String collaborate(@RequestHeader String tokens, @RequestHeader String email, @RequestHeader int noteId) {
+	public Response collaborate(@RequestHeader String tokens, @RequestHeader String email, @RequestHeader int noteId)
+			throws NotesException {
 		String decodeString = tokenService.getUserIdFromToken(tokens);
-		return service.collaborate(decodeString, email, noteId);
+		service.collaborate(decodeString, email, noteId);
+		return new Response("user collaborate", "ok", 200);
 	}
 
-	@PostMapping("/searchByTitle")
+	@GetMapping("/searchByTitle")
 	public List<Notes> searchString(@RequestHeader String token, @RequestHeader String noteTitle) {
 		String decoString = tokenService.getUserIdFromToken(token);
 		return service.searchByTitle(decoString, noteTitle);
@@ -128,21 +141,26 @@ public class NotesController {
 	}
 
 	@PostMapping("/addReminder")
-	public String addReminder(@RequestHeader String token, @RequestHeader String time, @RequestHeader int noteId) {
+	public Response addReminder(@RequestHeader String token, @RequestHeader String time, @RequestHeader int noteId)
+			throws NotesException {
 		String decodeToken = tokenService.getUserIdFromToken(token);
-		return service.setReminder(decodeToken, time, noteId);
+		service.setReminder(decodeToken, time, noteId);
+		return new Response("reminder set successfully", "ok", 200);
 	}
 
 	@DeleteMapping("/removeReminder")
-	public String removeReminder(@RequestHeader String token, @RequestHeader int noteId) {
+	public Response removeReminder(@RequestHeader String token, @RequestHeader int noteId) throws NotesException {
 		String decoString = tokenService.getUserIdFromToken(token);
-		return service.remove(decoString, noteId);
+		service.remove(decoString, noteId);
+		return new Response("reminder remove", "ok", 200);
+
 	}
 
-	@DeleteMapping("/removeCollaborator")
-	public String remove(@RequestHeader String token, @RequestHeader int noteId, @RequestHeader String email) {
-		String decodeString = tokenService.getUserIdFromToken(token);
-		return service.removeCollaborator(decodeString, noteId, email);
-	}
+	/*
+	 * @DeleteMapping("/removeCollaborator") public String remove(@RequestHeader
+	 * String token, @RequestHeader int noteId, @RequestHeader String email) {
+	 * String decodeString = tokenService.getUserIdFromToken(token); return
+	 * service.removeCollaborator(decodeString, noteId, email); }
+	 */
 
 }

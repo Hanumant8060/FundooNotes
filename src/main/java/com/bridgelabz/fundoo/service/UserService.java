@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.bridgelabz.fundoo.dto.ForgotPasswordDto;
 import com.bridgelabz.fundoo.dto.LoginDto;
 import com.bridgelabz.fundoo.dto.ResetPasswordDto;
+import com.bridgelabz.fundoo.exception.UserException;
 import com.bridgelabz.fundoo.model.User;
 import com.bridgelabz.fundoo.repository.UserRepository;
 import com.bridgelabz.fundoo.utility.JMS;
@@ -27,40 +28,25 @@ public class UserService {
 
 	public String newRegistration(User registerEntry) {
 		String emailId = registerEntry.getEmail();
-		System.out.println(emailId);
-		try {
-			Optional<User> newUser = repository.findByEmail(emailId);
-			System.out.println(newUser);
-			if (newUser.isEmpty()) {
-				System.out.println("user is not present");
-				repository.save(registerEntry);
-				return "add new user";
-			} else {
-				System.out.println("user is present");
-				return "user is available";
-			}
-		} catch (Exception e) {
-			System.out.println(e);
+		Optional<User> newUser = repository.findByEmail(emailId);
+		if (newUser.isEmpty()) {
+			repository.save(registerEntry);
+		} else {
+			throw new UserException("user already registered");
 		}
 		return "add user";
-
 	}
 
 	public String newLogin(LoginDto loginDto) {
 		Optional<User> user = repository.findByEmail(loginDto.getEmail());
 		if (user.isEmpty()) {
-			System.out.println("username not valid ");
-			throw new RuntimeException("user does not exist");
-
+			throw new UserException("user not present");
 		}
 		if (!user.get().getPassword().equals(loginDto.getPassword())) {
-			System.out.println("password not match");
-			throw new RuntimeException("password mismatch");
+			throw new UserException("Password-Mismatch");
 		}
-
 		String userToken = tokenservice.createToken(user.get().getEmail());
-		System.out.println("Token " + userToken);
-		//mailsender.sendEmail(loginDto.getEmail(), userToken);
+		mailsender.sendEmail(loginDto.getEmail(), userToken);
 		return "login succesfully " + userToken;
 
 	}
@@ -68,7 +54,7 @@ public class UserService {
 	public String forgotPass(ForgotPasswordDto forgotPassWord) {
 		Optional<User> user = repository.findByEmail(forgotPassWord.getEmail());
 		if (user.isEmpty()) {
-			return "User does not exist";
+			throw new UserException("User does not exist");
 		} else {
 			mailsender.sendEmail(forgotPassWord.getEmail(), "http://localhost:8080/home/forgotpassword");
 		}
@@ -86,7 +72,7 @@ public class UserService {
 				mailsender.sendEmail(resetPassWord.getEmail(), "password reset succesfully");
 			}
 		} else {
-			return "user not exist";
+			throw new UserException("User not exist");
 		}
 		return "password reset";
 	}

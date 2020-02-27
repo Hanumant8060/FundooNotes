@@ -1,7 +1,12 @@
 package com.bridgelabz.fundoo.dto;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
+
 public class LoginDto {
+	@Email(message = "please enter valid email")
 	private String email;
+	@NotEmpty(message = "please enter a valid password")
 	private String password;
 
 	

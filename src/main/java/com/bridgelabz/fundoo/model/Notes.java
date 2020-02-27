@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -22,6 +23,7 @@ public class Notes {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int noteId;
 	private String note_disc;
+	@NotEmpty(message = "note title should not be empty")
 	private String note_title;
 	@NotNull
 	private boolean isPin;
@@ -33,7 +35,7 @@ public class Notes {
 	private LocalDateTime atModified;
 	private boolean isReminder;
 	private LocalDateTime reminderTime;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "userid")
 	private User userid;
@@ -52,15 +54,18 @@ public class Notes {
 
 	public Notes() {
 		super();
-		// TODO Auto-generated constructor stub
+
 	}
 
-	/*
-	 * public Notes(int noteId, String note_disc, String note_title, User userid,
-	 * List<Label> labelNoteslist) { super(); this.noteId = noteId; this.note_disc =
-	 * note_disc; this.note_title = note_title; this.userid = userid;
-	 * this.labelNoteslist = labelNoteslist; }
-	 */
+	public Notes(int noteId, String note_disc, String note_title, User userid, List<Label> labelNoteslist) {
+		super();
+		this.noteId = noteId;
+		this.note_disc = note_disc;
+		this.note_title = note_title;
+		this.userid = userid;
+		this.labelNoteslist = labelNoteslist;
+	}
+
 	public List<Label> getLabelNoteslist() {
 		return labelNoteslist;
 	}
@@ -127,7 +132,7 @@ public class Notes {
 
 	public List<User> getUserNoteList() {
 		return userNoteList;
-	}        
+	}
 
 	public void setUserNoteList(List<User> userNoteList) {
 		this.userNoteList = userNoteList;
@@ -139,8 +144,7 @@ public class Notes {
 
 	public void setCollaboratorList(List<CollaBorator> collaboratorList) {
 		this.collaboratorList = collaboratorList;
-	} 
-	
+	}
 
 	public LocalDateTime getAtCreated() {
 		return atCreated;
@@ -157,7 +161,6 @@ public class Notes {
 	public void setAtModified(LocalDateTime atModified) {
 		this.atModified = atModified;
 	}
-	
 
 	public boolean isReminder() {
 		return isReminder;
@@ -166,7 +169,7 @@ public class Notes {
 	public void setReminder(boolean isReminder) {
 		this.isReminder = isReminder;
 	}
-	
+
 	public LocalDateTime getReminderTime() {
 		return reminderTime;
 	}
