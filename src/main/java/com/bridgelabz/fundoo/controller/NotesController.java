@@ -5,6 +5,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bridgelabz.fundoo.exception.NotesException;
@@ -22,6 +24,7 @@ import com.bridgelabz.fundoo.service.NotesService;
 import com.bridgelabz.fundoo.utility.TokenService;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/note")
 public class NotesController {
 	@Autowired
@@ -64,7 +67,7 @@ public class NotesController {
 	}
 
 	@PostMapping("/trash")
-	public Response trashNotes(@RequestHeader int noteId, @RequestHeader String token) throws NotesException {
+	public Response trashNotes(@RequestBody Notes noteId, @RequestHeader String token) throws NotesException {
 		String decodeToken = tokenService.getUserIdFromToken(token);
 		service.trashNote(noteId, decodeToken);
 		return new Response("note trashed", "OK", 200);
@@ -78,7 +81,7 @@ public class NotesController {
 	}
 
 	@PostMapping("/pin")
-	public Response pin(@RequestHeader int noteId, @RequestHeader String token) throws NotesException {
+	public Response pin(@RequestParam int noteId, @RequestHeader String token) throws NotesException {
 		String decodeToken = tokenService.getUserIdFromToken(token);
 		service.pinNote(noteId, decodeToken);
 		return new Response("note pinned", "Ok", 200);
@@ -120,9 +123,9 @@ public class NotesController {
 	}
 
 	@PostMapping("/collaborator")
-	public Response collaborate(@RequestHeader String tokens, @RequestHeader String email, @RequestHeader int noteId)
+	public Response collaborate(@RequestHeader String token, @RequestParam String email, @RequestParam int noteId)
 			throws NotesException {
-		String decodeString = tokenService.getUserIdFromToken(tokens);
+		String decodeString = tokenService.getUserIdFromToken(token);
 		service.collaborate(decodeString, email, noteId);
 		return new Response("user collaborate", "ok", 200);
 	}
@@ -133,26 +136,40 @@ public class NotesController {
 		return service.searchByTitle(decoString, noteTitle);
 
 	}
-
+//
 	@GetMapping("/getCollabList")
-	public List<CollaBorator> getList(@RequestHeader String token, @RequestHeader int noteId) {
+	public List<CollaBorator> getList(@RequestHeader String token, @RequestParam int noteId) {
 		String decodeString = tokenService.getUserIdFromToken(token);
+		
 		return service.getAllCollaborator(decodeString, noteId);
 	}
+//	@GetMapping("/getCollabList")
+//	public List<CollaBorator> getList(@RequestHeader String token) {
+//		String decodeString = tokenService.getUserIdFromToken(token);
+//		System.out.println();
+//		return service.getAllCollaborator(decodeString);
+//	}
 
 	@PostMapping("/addReminder")
-	public Response addReminder(@RequestHeader String token, @RequestHeader String time, @RequestHeader int noteId)
+	public Response addReminder(@RequestHeader String token, @RequestParam String time, @RequestParam int noteId)
 			throws NotesException {
 		String decodeToken = tokenService.getUserIdFromToken(token);
 		service.setReminder(decodeToken, time, noteId);
 		return new Response("reminder set successfully", "ok", 200);
 	}
 
-	@DeleteMapping("/removeReminder")
-	public Response removeReminder(@RequestHeader String token, @RequestHeader int noteId) throws NotesException {
+	@PostMapping("/removeReminder")
+	public Response removeReminder(@RequestHeader String token, @RequestParam int noteId) throws NotesException {
 		String decoString = tokenService.getUserIdFromToken(token);
 		service.remove(decoString, noteId);
 		return new Response("reminder remove", "ok", 200);
+
+	}
+	
+	@GetMapping("/listOfReminder")
+	public List<Notes> listOfReminder(@RequestHeader String token) {
+		String decodeToken = tokenService.getUserIdFromToken(token);
+		return service.listOfReminderNotes(decodeToken);
 
 	}
 

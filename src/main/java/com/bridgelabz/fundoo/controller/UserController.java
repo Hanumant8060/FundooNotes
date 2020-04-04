@@ -1,12 +1,17 @@
 package com.bridgelabz.fundoo.controller;
 
+import java.io.IOException;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.bridgelabz.fundoo.dto.ForgotPasswordDto;
 import com.bridgelabz.fundoo.dto.LoginDto;
@@ -17,6 +22,7 @@ import com.bridgelabz.fundoo.service.UserService;
 import com.bridgelabz.fundoo.utility.TokenService;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/home")
 public class UserController {
 	@Autowired
@@ -50,4 +56,11 @@ public class UserController {
 		return new Response("password reset successfully", "OK", 200);
 
 	}
+	@PostMapping("/uplaodImage")
+	public Response uplaodImage(@RequestHeader String token,@RequestHeader MultipartFile file) throws IOException {
+		 service.uploadProPic(token,file);
+		 return new Response("profile picture set succesfully", "OK", 200);
+
+	}
+	
 }

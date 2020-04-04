@@ -91,9 +91,9 @@ public class NotesService {
 		return sortNotelist1;
 	}
 
-	public String trashNote(int note, String token) throws NotesException {
+	public String trashNote(Notes note, String token) throws NotesException {
 		Optional<User> userId = userRepositry.findByEmail(token);
-		Optional<Notes> noteId = notesRepository.findByNoteId(note);
+		Optional<Notes> noteId = notesRepository.findByNoteId(note.getNoteId());
 		if (userId.isEmpty()) {
 			throw new UserException("user not present");
 		}
@@ -202,7 +202,7 @@ public class NotesService {
 	public List<Notes> listOfTrashNotes(String decodeToken) {
 		List<Notes> allTrashNotes = new ArrayList<Notes>();
 		Optional<User> userId = userRepositry.findByEmail(decodeToken);
-		Optional<Notes> note = notesRepository.findByUserid(userId.get());
+		List<Notes> note = notesRepository.findByUserid(userId.get());
 		allTrashNotes = note.stream().filter(i -> i.isTrash()).collect(Collectors.toList());
 		return allTrashNotes;
 	}
@@ -210,7 +210,7 @@ public class NotesService {
 	public List<Notes> listOfArchiveNotes(String decodeToken) {
 		List<Notes> allArchiveNotes = new ArrayList<Notes>();
 		Optional<User> userId = userRepositry.findByEmail(decodeToken);
-		Optional<Notes> note = notesRepository.findByUserid(userId.get());
+		List<Notes> note = notesRepository.findByUserid(userId.get());
 		allArchiveNotes = note.stream().filter(i -> i.isArchive()).collect(Collectors.toList());
 		return allArchiveNotes;
 	}
@@ -260,12 +260,21 @@ public class NotesService {
 		return collablist;
 
 	}
+//	public List<CollaBorator> getAllCollaborator(String decodeToken) {
+//		Optional<Notes> list = notesRepository.findByNoteId(noteId);
+//		List<CollaBorator> all = new ArrayList<CollaBorator>();
+//		Optional<User> userId = userRepositry.findByEmail(decodeToken);
+//		Optional<Notes> note = notesRepository.findByUserid(userId.get());
+//		all = note.stream().filter(i -> i.coll.collect(Collectors.toList());
+//		return allArchiveNotes;
+//
+//	}
 
 	public String setReminder(String decodeToken, String time, int noteId) throws NotesException {
 		Optional<User> user = userRepositry.findByEmail(decodeToken);
 		Optional<Notes> notes = notesRepository.findByNoteId(noteId);
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-		LocalDateTime reminderTime = LocalDateTime.parse(time, formatter);
+//		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//		LocalDateTime reminderTime = LocalDateTime.parse(time, formatter);
 		if (user.isEmpty()) {
 			throw new UserException("User not present");
 		}
@@ -275,7 +284,7 @@ public class NotesService {
 		}
 		if ((user.isPresent()) && (notes.isPresent())) {
 			notes.get().setReminder(true);
-			notes.get().setReminderTime(reminderTime);
+			notes.get().setReminderTime(time);
 			notesRepository.save(notes.get());
 		}
 		return "Reminder set successfully";
@@ -298,6 +307,16 @@ public class NotesService {
 		}
 		return "Reminder remove successfully";
 	}
+
+	public List<Notes> listOfReminderNotes(String decodeToken) {
+		List<Notes> allReminderNotes = new ArrayList<Notes>();
+		Optional<User> userId = userRepositry.findByEmail(decodeToken);
+		List<Notes> note = notesRepository.findByUserid(userId.get());
+		allReminderNotes = note.stream().filter(i -> i.isReminder()).collect(Collectors.toList());
+		return allReminderNotes;
+	}
+		
+	
 
 	/*
 	 * public String removeCollaborator(String decodeString, int noteId, String
