@@ -85,7 +85,7 @@ public class UserService {
 		}
 		return "password reset";
 	}
-	public String uploadProPic(String token, MultipartFile file) throws IOException {
+	public Response uploadProPic(String token, MultipartFile file) throws IOException {
 		String emailid = tokenservice.getUserIdFromToken(token);
 		Optional<User> user = repository.findByEmail(emailid);
 		if (user.isPresent()) {
@@ -95,22 +95,23 @@ public class UserService {
 			BufferedOutputStream outStream = new BufferedOutputStream(new FileOutputStream(uploadFile));
 			outStream.write(file.getBytes());
 			outStream.close();
-			Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap("cloud_name", "yelloracaves", "api_key",
-					"982216137489194", "api_secret", "rsDRuXLXg5n1HTZstmcckBxoOxY"));
+			Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap("cloud_name", "cloudox8060", "api_key",
+					"142979732574595", "api_secret", "OZTk6QX29w78dXX0cU7QkokSfNc"));
 			System.out.println(ObjectUtils.emptyMap());
 			Map<?, ?> uploadProfile;
 			//uploadProfile = cloudinary.uploader().upload(uploadFile, ObjectUtils.emptyMap());
 			uploadProfile = cloudinary.uploader().upload(uploadFile, ObjectUtils.emptyMap());
 			
 
-//			user.get().setImage(uploadProfile.get("secure_url").toString());
+		//user.get().setImage(uploadProfile.get("secure_url").toString());
 			user.get().setImage(uploadProfile.get("secure_url").toString());
 			repository.save(user.get());
-			return "profile picture set successfully";
-                                                                                                                                                                                                                                                                                                                                                                                                                                    
+//			return "profile picture set successfully " +uploadProfile.get("secure_url").toString();
+			return new Response("Profile picture set successfully", uploadProfile.get("secure_url").toString(), 200);                                                                                                                                                                                                                                                                                                                                                                
 		}
 		return null;
 
 	}
 
 }
+///[[p
