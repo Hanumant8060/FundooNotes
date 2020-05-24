@@ -35,7 +35,6 @@ public class Label {
 
 	public Label() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public Label(long labelId, String label_name, List<Notes> noteLabelList, User userid) {
@@ -92,12 +91,6 @@ public class Label {
 
 	public void setAtModified(LocalDateTime atModified) {
 		this.atModified = atModified;
-	}
-
-	@Override
-	public String toString() {
-		return "Label [labelId=" + labelId + ", label_name=" + labelname + ", noteLabelList=" + noteLabelList
-				+ ", userid=" + userid + "]";
 	}
 
 }

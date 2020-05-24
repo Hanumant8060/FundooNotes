@@ -55,7 +55,6 @@ public class UserService {
 			throw new UserException("Password-Mismatch");
 		}
 		String userToken = tokenservice.createToken(user.get().getEmail());
-//		mailsender.sendEmail(loginDto.getEmail(), userToken);
 		return "login succesfully " + userToken;
 
 	}
@@ -85,13 +84,12 @@ public class UserService {
 		}
 		return "password reset";
 	}
+
 	public Response uploadProPic(String token, MultipartFile file) throws IOException {
 		String emailid = tokenservice.getUserIdFromToken(token);
 		Optional<User> user = repository.findByEmail(emailid);
 		if (user.isPresent()) {
-			System.out.println("hey");
 			File uploadFile = new File(file.getOriginalFilename());
-			System.out.println(uploadFile);
 			BufferedOutputStream outStream = new BufferedOutputStream(new FileOutputStream(uploadFile));
 			outStream.write(file.getBytes());
 			outStream.close();
@@ -99,19 +97,13 @@ public class UserService {
 					"142979732574595", "api_secret", "OZTk6QX29w78dXX0cU7QkokSfNc"));
 			System.out.println(ObjectUtils.emptyMap());
 			Map<?, ?> uploadProfile;
-			//uploadProfile = cloudinary.uploader().upload(uploadFile, ObjectUtils.emptyMap());
 			uploadProfile = cloudinary.uploader().upload(uploadFile, ObjectUtils.emptyMap());
-			
-
-		//user.get().setImage(uploadProfile.get("secure_url").toString());
 			user.get().setImage(uploadProfile.get("secure_url").toString());
 			repository.save(user.get());
-//			return "profile picture set successfully " +uploadProfile.get("secure_url").toString();
-			return new Response("Profile picture set successfully", uploadProfile.get("secure_url").toString(), 200);                                                                                                                                                                                                                                                                                                                                                                
+			return new Response("Profile picture set successfully", uploadProfile.get("secure_url").toString(), 200);
 		}
 		return null;
 
 	}
 
 }
-///[[p

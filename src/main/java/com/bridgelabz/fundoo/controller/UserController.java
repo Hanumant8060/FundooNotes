@@ -10,10 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.bridgelabz.fundoo.dto.ForgotPasswordDto;
 import com.bridgelabz.fundoo.dto.LoginDto;
 import com.bridgelabz.fundoo.dto.ResetPasswordDto;
@@ -24,7 +22,6 @@ import com.bridgelabz.fundoo.utility.TokenService;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
-//@CrossOrigin
 @RequestMapping("/home")
 public class UserController {
 	@Autowired
@@ -58,11 +55,11 @@ public class UserController {
 		return new Response("password reset successfully", "OK", 200);
 
 	}
-	@PostMapping(value = "/uplaodImage" , consumes = "multipart/form-data")
+
+	@PostMapping(value = "/uplaodImage", consumes = "multipart/form-data")
 	public Response uplaodImage(@RequestHeader String token, MultipartFile file) throws IOException {
-		return service.uploadProPic(token,file);
-//		 return new Response("profile picture set succesfully", file, 200);
+		return service.uploadProPic(token, file);
 
 	}
-	
+
 }

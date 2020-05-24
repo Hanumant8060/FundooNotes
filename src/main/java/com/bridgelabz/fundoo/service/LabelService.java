@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -106,4 +108,66 @@ public class LabelService {
 		}
 		return "update";
 	}
+
+	public List<Label> displayaddedlabels(String token, int noteId) {
+		Optional<User> user = userRepository.findByEmail(token);
+		if (user.isPresent()) {
+			List<Label> labelModelAll = labelRepository.findAll();
+			List<Label> labelModelUserCreate = labelModelAll.stream()
+					.filter(i -> i.getUserid().getUserid() == user.get().getUserid()).collect(Collectors.toList());
+			List<Label> sortlabel = new ArrayList<Label>();
+			for (int j = 0; j < labelModelUserCreate.size(); j++) {
+				for (int k = 0; k < labelModelUserCreate.get(j).getNoteLabelList().size(); k++) {
+					if ((labelModelUserCreate.get(j).getNoteLabelList().get(k).getNoteId()) == noteId) {
+						sortlabel.add(labelModelUserCreate.get(j));
+					}
+				}
+			}
+			return (sortlabel);
+
+		}
+
+		return null;
+	}
+
+	public List<Label> displayunaddedlabels(String token, int noteId) {
+		Optional<User> registrationModel = userRepository.findByEmail(token);
+		Optional<Notes> notesinfo = noteRpository.findByNoteId(noteId);
+		if (registrationModel.isPresent()) {
+			List<Label> labelModelAll = labelRepository.findAll();
+			List<Label> labelModelUserCreate = labelModelAll.stream()
+					.filter(i -> (i.getUserid().getUserid() == registrationModel.get().getUserid()))
+					.collect(Collectors.toList());
+			List<Label> sortLabel = new ArrayList<Label>();
+			sortLabel.addAll(labelModelUserCreate);
+			for (int j = 0; j < labelModelUserCreate.size(); j++) {
+				for (int j2 = 0; j2 < labelModelUserCreate.get(j).getNoteLabelList().size(); j2++) {
+					if ((labelModelUserCreate.get(j).getNoteLabelList().get(j2).getNoteId()) == noteId) {
+						sortLabel.remove(labelModelUserCreate.get(j));
+
+					}
+				}
+			}
+			return (sortLabel);
+		}
+		return null;
+
+	}
+
+	public String removelabelfromnote(String tokennew, int noteId, int labelid) {
+		Optional<User> registrationModel = userRepository.findByEmail(tokennew);
+		if (registrationModel.isPresent()) {
+			Optional<Notes> noteModel = noteRpository.findByNoteId(noteId);
+			Optional<Label> labelModel = labelRepository.findByLabelId(labelid);
+			if (noteModel.isPresent() && labelModel.isPresent()) {
+				noteModel.get().getLabelNoteslist().remove(labelModel.get());
+				noteRpository.save(noteModel.get());
+
+			}
+
+		}
+		return "note remove";
+
+	}
+
 }

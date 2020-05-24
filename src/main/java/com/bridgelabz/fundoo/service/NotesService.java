@@ -1,7 +1,6 @@
 package com.bridgelabz.fundoo.service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -9,7 +8,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.bridgelabz.fundoo.exception.NotesException;
 import com.bridgelabz.fundoo.exception.UserException;
 import com.bridgelabz.fundoo.model.CollaBorator;
@@ -18,6 +16,7 @@ import com.bridgelabz.fundoo.model.User;
 import com.bridgelabz.fundoo.repository.CollabRepository;
 import com.bridgelabz.fundoo.repository.NotesRepository;
 import com.bridgelabz.fundoo.repository.UserRepository;
+import com.bridgelabz.fundoo.response.Response;
 
 @Service
 public class NotesService {
@@ -33,9 +32,9 @@ public class NotesService {
 		if (notes.getNote_title().isEmpty()) {
 			throw new NotesException("note title should not be empty");
 		}
-			if (notes.getNote_disc().isEmpty()) {
-				throw new NotesException("note discription should not be empty");
-			
+		if (notes.getNote_disc().isEmpty()) {
+			throw new NotesException("note discription should not be empty");
+
 		} else {
 			notes.setUserid(user.get());
 			notes.setAtCreated();
@@ -61,7 +60,10 @@ public class NotesService {
 		Optional<User> user = userRepositry.findByEmail(decodeToken);
 		List<Notes> noteList = notesRepository.findAll();
 		allNotes = noteList.stream().filter(i -> i.getUserid().equals(user.get())).collect(Collectors.toList());
-		return allNotes;
+		List<Notes> checkTrash = allNotes.stream().filter(i -> i.isTrash() == false).collect(Collectors.toList());
+		List<Notes> checkArchived = checkTrash.stream().filter(i -> i.isArchive() == false)
+				.collect(Collectors.toList());
+		return checkArchived;
 
 	}
 
@@ -73,8 +75,7 @@ public class NotesService {
 			note.get().setNote_title(notes.getNote_title());
 			note.get().setAtModified(LocalDateTime.now());
 			notesRepository.save(note.get());
-		} 
-		 else {
+		} else {
 			throw new NotesException("note not present");
 		}
 		return "updated successfully";
@@ -139,11 +140,11 @@ public class NotesService {
 		if (noteId.isEmpty()) {
 			throw new NotesException("note not present");
 		} else {
-			if (noteId.get().isPin()) {
-				noteId.get().setPin(false);
+			if (!noteId.get().isPin()) {
+				noteId.get().setPin(true);
 				notesRepository.save(noteId.get());
 			} else {
-				noteId.get().setPin(true);
+				noteId.get().setPin(false);
 				notesRepository.save(noteId.get());
 				return "pinned";
 			}
@@ -151,9 +152,9 @@ public class NotesService {
 		return "unpinned";
 	}
 
-	public String archivedNote(int noteId, String decodeToken) throws NotesException {
+	public String archivedNote(Notes noteId, String decodeToken) throws NotesException {
 		Optional<User> userId = userRepositry.findByEmail(decodeToken);
-		Optional<Notes> note = notesRepository.findByNoteId(noteId);
+		Optional<Notes> note = notesRepository.findByNoteId(noteId.getNoteId());
 		if (userId.isEmpty()) {
 			throw new UserException("user not present");
 		}
@@ -215,12 +216,14 @@ public class NotesService {
 		return allArchiveNotes;
 	}
 
-	public List<Notes> searchByTitle(String decoString, String noteTitle) {
-		List<Notes> allNote = getAllNotes(decoString);
-		List<Notes> titleList = allNote.stream().filter(i -> (i.getNote_title().equals(noteTitle)))
+	public Response searchByTitle(String emailid, String title) {
+		Optional<User> user = userRepositry.findByEmail(emailid);
+		List<Notes> notes = notesRepository.findByUserid(user.get());
+		List<Notes> notesList = notes.stream().filter(i -> i.getUserid().getEmail().equals(emailid))
 				.collect(Collectors.toList());
-		return titleList;
-
+		List<Notes> noteSearch = notesList.stream().filter(i -> i.getNote_title().equals(title))
+				.collect(Collectors.toList());
+		return new Response("display Serach Note successfully", noteSearch, 200);
 	}
 
 	public String collaborate(String tokens, String emailid, int noteId) throws NotesException {
@@ -260,21 +263,10 @@ public class NotesService {
 		return collablist;
 
 	}
-//	public List<CollaBorator> getAllCollaborator(String decodeToken) {
-//		Optional<Notes> list = notesRepository.findByNoteId(noteId);
-//		List<CollaBorator> all = new ArrayList<CollaBorator>();
-//		Optional<User> userId = userRepositry.findByEmail(decodeToken);
-//		Optional<Notes> note = notesRepository.findByUserid(userId.get());
-//		all = note.stream().filter(i -> i.coll.collect(Collectors.toList());
-//		return allArchiveNotes;
-//
-//	}
 
 	public String setReminder(String decodeToken, String time, int noteId) throws NotesException {
 		Optional<User> user = userRepositry.findByEmail(decodeToken);
 		Optional<Notes> notes = notesRepository.findByNoteId(noteId);
-//		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//		LocalDateTime reminderTime = LocalDateTime.parse(time, formatter);
 		if (user.isEmpty()) {
 			throw new UserException("User not present");
 		}
@@ -315,17 +307,16 @@ public class NotesService {
 		allReminderNotes = note.stream().filter(i -> i.isReminder()).collect(Collectors.toList());
 		return allReminderNotes;
 	}
-		
-	
 
-	/*
-	 * public String removeCollaborator(String decodeString, int noteId, String
-	 * emailString) { Optional<User> user = userRepositry.findByEmail(decodeString);
-	 * Optional<Notes> notes = notesRepository.findByNoteId(noteId);
-	 * Optional<CollaBorator> collaborator =
-	 * collabRepository.findByCollabEmail(emailString); List<CollaBorator> list =
-	 * getAllCollaborator(decodeString, noteId); // List<CollaBorator> allList =
-	 * list.stream().filter(i-> i.getNoteList().g)
-	 * collaborator.get().getNoteList().remove(emailString); return null; }
-	 */
+	public String Backgroundcolor(Notes noteModel, String decodeString) {
+		Optional<User> registrationModel = userRepositry.findByEmail(decodeString);
+		if (registrationModel.isPresent()) {
+			Optional<Notes> note = notesRepository.findById(noteModel.getNoteId());
+			note.get().setColor(noteModel.getColor());
+			notesRepository.save(note.get());
+			return "colorChangeSuccessFully";
+		}
+		return "not valid token";
+	}
+
 }

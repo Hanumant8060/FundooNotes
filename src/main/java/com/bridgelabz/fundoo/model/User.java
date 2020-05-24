@@ -41,7 +41,7 @@ public class User {
 	@JoinTable(name = "User_Notes_join", joinColumns = @JoinColumn(name = "userid"), inverseJoinColumns = @JoinColumn(name = "noteId"))
 	@JsonIgnoreProperties(value = "userNoteList")
 	private List<Notes> noteUserList = new ArrayList<Notes>();
-	private String image; 
+	private String image;
 
 	public int getUserid() {
 		return userid;
@@ -106,8 +106,7 @@ public class User {
 	public void setNoteUserList(List<Notes> noteUserList) {
 		this.noteUserList = noteUserList;
 	}
-	
-	
+
 	public String getImage() {
 		return image;
 	}

@@ -35,6 +35,7 @@ public class Notes {
 	private LocalDateTime atModified;
 	private boolean isReminder;
 	private String reminderTime;
+	private String color;
 
 	@ManyToOne
 	@JoinColumn(name = "userid")
@@ -170,27 +171,20 @@ public class Notes {
 		this.isReminder = isReminder;
 	}
 
-//	public LocalDateTime getReminderTime() {
-//		return reminderTime;
-//	}
-//
-//	public void setReminderTime(LocalDateTime reminderTime) {
-//		this.reminderTime = reminderTime;
-//	}
-	
-
-	@Override
-	public String toString() {
-		return "Notes [noteId=" + noteId + ", note_disc=" + note_disc + ", note_title=" + note_title + ", userid="
-				+ userid + ", labelNoteslist=" + labelNoteslist + "]";
-	}
-
 	public String getReminderTime() {
 		return reminderTime;
 	}
 
 	public void setReminderTime(String reminderTime) {
 		this.reminderTime = reminderTime;
+	}
+
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
 	}
 
 }
